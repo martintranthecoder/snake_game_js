@@ -1,13 +1,16 @@
 // define HTML elements
 const board = document.querySelector("#game-board");
 const startText = document.querySelector("#instruction-text");
+const logo = document.querySelector("#logo");
 
 // define game variables
 const gridSize = 20; // order matters
 let snake = [{x: 10, y: 10}]; // head of the snake 
 let food = generateFood();
 let direction = "up";
-
+let gameInterval;
+let gameSpeedDelay = 200;
+let gameStarted = false;
 
 
 //Draw game map, snake and food
@@ -18,15 +21,6 @@ function draw() {
     drawFood();
 }
 
-// function drawSnake() {
-//     snake.forEach(segment => {
-//         const snakeElement = document.createElement("div");
-//         snakeElement.style.gridRowStart = segment.x;
-//         snakeElement.style.gridColumnStart = segment.y;
-//         snakeElement.classList.add("snake");
-//         board.appendChild(snakeElement);
-//     });
-// }
 
 function drawSnake() {
     snake.forEach((segment) => {
@@ -91,18 +85,76 @@ function move(){
 
     snake.unshift(head); // add the new head to the snake
 
-    snake.pop(); // remove the last element of the snake to make it move but doesn't grow
 
+    if (head.x === food.x && head.y === food.y){
+        food = generateFood();
+        clearInterval(); // stop the interval
+        gameInterval = setInterval( () => {
+            move();
+            draw();
+        }, gameSpeedDelay);
+
+    } else {
+        snake.pop();
+    }
 
 }
 
-//test move()
+
+// // test move()
 // setInterval(() => {
 //     move();
 //     draw();
 // }, 1000)
 
+//start game function
+function startGame() {
+    gameStarted = true;
+    startText.style.display = "none";
+    logo.style.display = "none";
+    gameInterval = setInterval( () => {
+        move();
+        // checkCollision();
+        draw();
+    }, gameSpeedDelay); // use setInterval(func, delay)
+}
 
+//keydown event listener
+function handleKeyDown(event) {
+    if (!gameStarted && event.code === "Space") {
+        startGame();
+    } else {
+        switch(event.code) {
+            case 'ArrowUp':
+                direction = 'up';
+                break;
+            case 'ArrowDown':
+                direction = 'down';
+                break;
+            case 'ArrowLeft':
+                direction = 'left';
+                break;
+            case 'ArrowRight':
+                direction = 'right';
+                break;
+        }
+    }
+}
+document.addEventListener("keydown", handleKeyDown);
+
+// check collision
+function checkCollision() {
+
+}
+
+// move snake is out of bounds  
+function moveOutOfBounds() {
+    for (let i = 0; i < snake.length; i++){
+        if (snake[i].x < 1 || snake[i].x > gridSize || snake[i].y < 1 || snake[i].y > gridSize) {
+            
+        }
+    }
+}
 
 
 
@@ -110,5 +162,5 @@ function move(){
 
 /* Borders, Mines, Game size adjustment, Food items,
  Randomly placed food items, Food detection, Wall detection, 
- User input, Snake movement, Contact recognition, Eating food, 
+ User input, make movement, Contact recognition, Eating food, 
  Game loop, Game over */
