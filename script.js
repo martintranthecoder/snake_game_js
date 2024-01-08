@@ -114,7 +114,8 @@ function startGame() {
     logo.style.display = "none";
     gameInterval = setInterval( () => {
         move();
-        // checkCollision();
+        moveOutOfBounds();
+        checkCollision();
         draw();
     }, gameSpeedDelay); // use setInterval(func, delay)
 }
@@ -150,8 +151,14 @@ function checkCollision() {
 // move snake is out of bounds  
 function moveOutOfBounds() {
     for (let i = 0; i < snake.length; i++){
-        if (snake[i].x < 1 || snake[i].x > gridSize || snake[i].y < 1 || snake[i].y > gridSize) {
-            
+        if (snake[i].x < 1) {
+            snake[i].x = gridSize;
+        } else if (snake[i].x > gridSize) {
+            snake[i].x = 1;
+        } else if (snake[i].y < 1) {
+            snake[i].y = gridSize;
+        } else if (snake[i].y > gridSize) {
+            snake[i].y = 1;
         }
     }
 }
