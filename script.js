@@ -2,6 +2,8 @@
 const board = document.querySelector("#game-board");
 const startText = document.querySelector("#instruction-text");
 const logo = document.querySelector("#logo");
+const score = document.querySelector("#score");
+const highScore = document.querySelector("#highScore");
 
 // define game variables
 const gridSize = 20; // order matters
@@ -11,6 +13,7 @@ let direction = "up";
 let gameInterval;
 let gameSpeedDelay = 200;
 let gameStarted = false;
+let highScoreValue = 0;
 
 
 //Draw game map, snake and food
@@ -19,16 +22,19 @@ function draw() {
     board.innerHTML = "";
     drawSnake();
     drawFood();
+    updateScore();
 }
 
 
 function drawSnake() {
-    snake.forEach((segment) => {
-        const snakeElement = createGameElement("div", "snake");
-        setPosition(snakeElement, segment);
-        board.appendChild(snakeElement)
+    if ( gameStarted ) {
+        snake.forEach((segment) => {
+            const snakeElement = createGameElement("div", "snake");
+            setPosition(snakeElement, segment);
+            board.appendChild(snakeElement)
+        }
+        )
     }
-    )
 }
 
 // create a snake or food element
@@ -47,9 +53,11 @@ function setPosition(element, position) {
 
 
 function drawFood() {
-    const foodElement = createGameElement("div", "food");
-    setPosition(foodElement, food);
-    board.appendChild(foodElement);
+    if (gameStarted) { 
+        const foodElement = createGameElement("div", "food");
+        setPosition(foodElement, food);
+        board.appendChild(foodElement);
+    }
 }
 
 
@@ -67,7 +75,7 @@ function generateFood() {
 
 
 function move(){
-    const head = {...snake[0]} // copy the head of the snake if u use snake[0] it will change the original snake
+    const head = {...snake[0]}; // copy the head of the snake if u use snake[0] it will change the original snake
     switch (direction) {
         case "up":
             head.y--;
@@ -83,14 +91,18 @@ function move(){
             break;
     }
 
+
     snake.unshift(head); // add the new head to the snake
 
 
     if (head.x === food.x && head.y === food.y){
         food = generateFood();
-        clearInterval(); // stop the interval
+        increaseSpeed();
+        clearInterval(gameInterval); // stop the interval
         gameInterval = setInterval( () => {
             move();
+            moveOutOfBounds();
+            checkCollision();
             draw();
         }, gameSpeedDelay);
 
@@ -122,7 +134,8 @@ function startGame() {
 
 //keydown event listener
 function handleKeyDown(event) {
-    if (!gameStarted && event.code === "Space") {
+    if ( (!gameStarted && event.code === "Space" ) ||
+         (!gameStarted && event.code === ' ' ) ) {
         startGame();
     } else {
         switch(event.code) {
@@ -145,7 +158,12 @@ document.addEventListener("keydown", handleKeyDown);
 
 // check collision
 function checkCollision() {
-
+    const head = snake[0];
+    for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+          resetGame();
+        }
+      }
 }
 
 // move snake is out of bounds  
@@ -163,6 +181,52 @@ function moveOutOfBounds() {
     }
 }
 
+// increase speed
+function increaseSpeed() {
+    if (gameSpeedDelay > 150) {
+        gameSpeedDelay -= 5;
+    } else if (gameSpeedDelay > 100) {
+        gameSpeedDelay -= 3;
+    } else if (gameSpeedDelay > 50) {
+        gameSpeedDelay -= 2;
+    } else if (gameSpeedDelay > 25) {
+        gameSpeedDelay -= 1;
+    }   
+}
+
+// reset game   
+function resetGame() {
+    updateHighScore();
+    stopGame();
+    snake = [{x: 10, y: 10}];
+    food = generateFood();
+    direction = "up";
+    gameSpeedDelay = 200;
+    updateScore();
+}
+
+// update score
+function updateScore() {
+    const currentScore = snake.length - 1;
+    score.textContent = currentScore.toString().padStart(3, "0");
+}
+
+// update high score
+function updateHighScore() {
+    const currentScore = snake.length - 1;
+    if (currentScore > highScoreValue) {
+        highScore.textContent = currentScore.toString().padStart(3, "0");   
+    }
+    highScore.style.display = "block";
+}
+
+// stop game
+function stopGame() {
+    gameStarted = false;
+    clearInterval(gameInterval);
+    startText.style.display = "block";
+    logo.style.display = "block";
+}
 
 
 // Functions I would add after finishing the tutorial
