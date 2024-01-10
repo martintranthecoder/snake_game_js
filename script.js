@@ -198,10 +198,12 @@ function checkCollision() {
         if (head.x === snake[i].x && head.y === snake[i].y) {
           resetGame();
         } 
-        // else if (head.x === mines[j].x && head.y === mines[j].y) {
-        //     resetGame();
-        // }
-      }
+    }
+    for (let i = 0; i < mines.length; i++) {
+        if (head.x === mines[i].x && head.y === mines[i].y) {
+            resetGame();
+        }
+    }
 }
 
 // move snake is out of bounds  
@@ -266,4 +268,3 @@ function stopGame() {
     startText.style.display = "block";
     logo.style.display = "block";
 }
-
