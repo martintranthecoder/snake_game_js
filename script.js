@@ -8,6 +8,7 @@ const highScore = document.querySelector("#highScore");
 // define game variables
 const gridSize = 20; // order matters
 let snake = [{x: 10, y: 10}]; // head of the snake 
+let mines = generateMines();
 let food = generateFood();
 let direction = "up";
 let gameInterval;
@@ -16,12 +17,14 @@ let gameStarted = false;
 let highScoreValue = 0;
 
 
+
 //Draw game map, snake and food
 function draw() {
     //every time it draws, it clears the board
     board.innerHTML = "";
     drawSnake();
     drawFood();
+    drawMines();
     updateScore();
 }
 
@@ -51,6 +54,29 @@ function setPosition(element, position) {
 }
 
 
+//draw mines
+function drawMines() {
+    if (gameStarted) {
+        mines.forEach((mine) => {
+            const mineElement = createGameElement("div", "mine");
+            setPosition(mineElement, mine);
+            board.appendChild(mineElement);
+        })
+    }
+}
+
+function generateMines() { 
+    let generatedMines = [];
+    for (let i = 0; i < 5; i++) {
+        const x = Math.floor(Math.random() * gridSize) + 1;
+        const y = Math.floor(Math.random() * gridSize) + 1;
+        let newMinePosition = {x, y};
+        generatedMines.push(newMinePosition);
+    } 
+
+    return generatedMines;
+}
+
 
 function drawFood() {
     if (gameStarted) { 
@@ -65,13 +91,22 @@ function generateFood() {
     const x = Math.floor(Math.random() * gridSize) + 1;
     const y = Math.floor(Math.random() * gridSize) + 1;
     let newFoodPosition = {x, y};
+    // check if food is on the snake and mines
     snake.forEach((segment) => {
         if (segment.x === newFoodPosition.x && segment.y === newFoodPosition.y) {
             newFoodPosition = generateFood();
         }
     })
+    mines.forEach((mine) => {
+        if (mine.x === newFoodPosition.x && mine.y === newFoodPosition.y) {
+            newFoodPosition = generateFood();
+        }
+    })
+
     return newFoodPosition;
 }
+
+
 
 
 function move(){
@@ -159,10 +194,13 @@ document.addEventListener("keydown", handleKeyDown);
 // check collision
 function checkCollision() {
     const head = snake[0];
-    for (let i = 1; i < snake.length; i++) {
+    for (let i = 1 ; i < snake.length; i++) {
         if (head.x === snake[i].x && head.y === snake[i].y) {
           resetGame();
-        }
+        } 
+        // else if (head.x === mines[j].x && head.y === mines[j].y) {
+        //     resetGame();
+        // }
       }
 }
 
@@ -202,6 +240,7 @@ function resetGame() {
     food = generateFood();
     direction = "up";
     gameSpeedDelay = 200;
+    mines = generateMines();
     updateScore();
 }
 
@@ -228,10 +267,3 @@ function stopGame() {
     logo.style.display = "block";
 }
 
-
-// Functions I would add after finishing the tutorial
-
-/* Borders, Mines, Game size adjustment, Food items,
- Randomly placed food items, Food detection, Wall detection, 
- User input, make movement, Contact recognition, Eating food, 
- Game loop, Game over */

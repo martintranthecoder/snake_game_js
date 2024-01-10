@@ -87,3 +87,8 @@ body,
 #logo {
     position: absolute;
 }
+
+.mine {
+    background-color: #8b0023;
+    border: #d90037 5px solid;
+}
