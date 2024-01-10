@@ -1,5 +1,19 @@
 For CSS:
+    border-shawdow: inset
 
 
 For JS:
-    
+    setInterval()
+    clearInterval()
+    forEach syntax
+    DOM manipulations: 
+        createElement
+        className
+        appendChild
+    Array.unshift
+    Array.pop
+    propety.style.display = "none"/"block"
+    padStart
+    Spread syntax
+    Order of functions and variables matters
+
